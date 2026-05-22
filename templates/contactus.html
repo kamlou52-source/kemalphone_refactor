@@ -1,0 +1,13 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Contact</h2>
+<p>Tél: +41 76 472 69 61 — Email: <a href="mailto:elkemal2000@yahoo.fr">elkemal2000@yahoo.fr</a></p>
+
+<h3>Connexion rapide via QR</h3>
+<p>Scannez pour vous connecter rapidement :</p>
+<img alt="QR login" width="220" height="220" src="data:image/png;base64,{{ qr_code }}">
+
+<h3>Adresse</h3>
+<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d2745.5126526550116!2d6.628457!3d46.5177565!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c2e2d4e44796f%3A0x1bfaa4d3c6780d3d!2sPl.%20de%20la%20Gare%2010%2C%201003%20Lausanne!5e0!3m2!1sfr!2sch!4v1681484710375!5m2!1sfr!2sch" width="600" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+{% endblock %}

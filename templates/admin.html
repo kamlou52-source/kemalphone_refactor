@@ -1,0 +1,69 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Administration</h2>
+
+<h3>Utilisateurs</h3>
+<table class="table">
+  <thead><tr><th>ID</th><th>E-mail</th><th>Rôle</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.role }}</td>
+      <td>
+        <form method="POST" action="{{ url_for('admin_set_role', user_id=u.id) }}" style="display:inline">
+          <select name="role">
+            <option value="user" {{ 'selected' if u.role=='user' else '' }}>user</option>
+            <option value="staff" {{ 'selected' if u.role=='staff' else '' }}>staff</option>
+            <option value="admin" {{ 'selected' if u.role=='admin' else '' }}>admin</option>
+          </select>
+          <button class="btn" type="submit">Mettre à jour</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3>Factures</h3>
+<table class="table">
+  <thead><tr><th>ID</th><th>Client</th><th>Total (CHF)</th><th>Statut</th><th>Créé</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for inv in invoices %}
+    <tr>
+      <td>{{ inv.id }}</td>
+      <td>{{ inv.customer_name }}</td>
+      <td>{{ '%.2f'|format(inv.total) }}</td>
+      <td>{{ inv.status }}</td>
+      <td>{{ inv.created.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>
+        <a class="btn" href="{{ url_for('invoice_view', invoice_id=inv.id) }}">Ouvrir</a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3>Demandes (UserInput)</h3>
+<table class="table">
+  <thead><tr><th>ID</th><th>Prénom</th><th>Modèle</th><th>Problème</th><th>Créé</th></tr></thead>
+  <tbody>
+  {% for r in userinputs %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.fname }}</td>
+      <td>{{ r.modele }}</td>
+      <td>{{ r.problem }}</td>
+      <td>{{ r.created.strftime("%Y-%m-%d %H:%M") if r.created else '' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<p>
+  <a class="btn" href="{{ url_for('export_invoices_csv') }}">Exporter factures (CSV)</a>
+  <a class="btn" href="{{ url_for('export_userinputs_csv') }}">Exporter demandes (CSV)</a>
+</p>
+{% endblock %}

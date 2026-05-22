@@ -1,0 +1,90 @@
+
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: templates/billing.html
+msgid "Facturation / Devis"
+msgstr "Facturation / Devis"
+
+msgid "Client (Nom)"
+msgstr "Client (Nom)"
+
+msgid "Articles"
+msgstr "Articles"
+
+msgid "Mode"
+msgstr "Mode"
+
+msgid "Générer"
+msgstr "Générer"
+
+#: templates/invoice.html
+msgid "Facture / Devis"
+msgstr "Facture / Devis"
+
+msgid "Client"
+msgstr "Client"
+
+msgid "Article"
+msgstr "Article"
+
+msgid "Qté"
+msgstr "Qté"
+
+msgid "PU (CHF)"
+msgstr "PU (CHF)"
+
+msgid "Montant (CHF)"
+msgstr "Montant (CHF)"
+
+msgid "Sous-total"
+msgstr "Sous-total"
+
+msgid "TVA"
+msgstr "TVA"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Statut"
+msgstr "Statut"
+
+msgid "Nouvelle facture / devis"
+msgstr "Nouvelle facture / devis"
+
+#: flashes and auth
+msgid "Accès réservé aux administrateurs."
+msgstr "Accès réservé aux administrateurs."
+
+msgid "Accès réservé au personnel."
+msgstr "Accès réservé au personnel."
+
+msgid "Langue changée."
+msgstr "Langue changée."
+
+msgid "Langue non supportée."
+msgstr "Langue non supportée."
+
+msgid "Veuillez renseigner le client et au moins un article."
+msgstr "Veuillez renseigner le client et au moins un article."
+
+msgid "Paiement validé."
+msgstr "Paiement validé."
+
+msgid "Commande enregistrée. Paiement au retrait."
+msgstr "Commande enregistrée. Paiement au retrait."
+
+msgid "Devis généré."
+msgstr "Devis généré."
+
+msgid "E-mail non configuré. Veuillez définir Flask-Mail."
+msgstr "E-mail non configuré. Veuillez définir Flask-Mail."
+
+msgid "E-mail envoyé."
+msgstr "E-mail envoyé."
+
+#: navbar
+msgid "Facturation"
+msgstr "Facturation"

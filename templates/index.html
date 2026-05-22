@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Accueil — El Kémal Phone’s Solutions{% endblock %}
+{% block body_class %}home{% endblock %}
+{% set no_footer = true %}
+{% block content %}
+<section class="home-hero">
+  <div>
+    <h2 style="font-size:clamp(1.4rem,3vw,2.2rem);margin-bottom:.5rem;">Bienvenue</h2>
+    <p>Réparations et solutions mobiles rapides et fiables.</p>
+  </div>
+</section>
+  <section class="hero" style="background-image:url('{{ url_for("static", filename="img/hero.jpg") }}')">
+    <div class="hero-inner">
+      <h2>{{ _('Réparation & solutions digitales') }}</h2>
+      <p>{{ _('Diagnostic rapide, devis transparent, service professionnel.') }}</p>
+      <p>
+        <a class="btn-primary" href="{{ url_for('userinput_form') }}">{{ _('Soumettre une demande') }}</a>
+        <a class="btn-ghost" href="{{ url_for('contact') }}">{{ _('Contact / QR') }}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="cards">
+  <h3>{{ _('Dernières demandes') }}</h3>
+  {% if userinputs %}
+    <div class="grid">
+      {% for u in userinputs %}
+      <article class="card">
+        <div class="card-title">
+          <strong>{{ u.fname }}</strong> <span class="muted">— {{ u.modele }}</span>
+        </div>
+        <div class="card-body">{{ u.problem }}</div>
+        <div class="card-meta muted">
+          {{ u.created.strftime('%Y-%m-%d %H:%M') if u.created else '' }}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune demande pour l’instant.") }}</p>
+  {% endif %}
+</section>
+{% endblock %}

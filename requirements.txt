@@ -1,0 +1,11 @@
+flask
+flask_sqlalchemy
+flask_login
+flask_babel
+Flask-Mail
+qrcode
+reportlab
+gunicorn
+psycopg2-binary
+# optionnel si vous chargez .env en local
+python-dotenv

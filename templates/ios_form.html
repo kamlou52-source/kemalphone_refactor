@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}iOS — El Kémal Phone’s Solutions{% endblock %}
+
+{% set no_footer = true %}
+{% block content %}
+<section class="form-page">
+   <p>Bonjour {{ fname }} 👋</p>
+
+  <form action="{{ url_for('ios_form') }}" method="POST" name="modele" class="phone-form">
+    <fieldset>
+      <h3>Les modèles de téléphones iPhone</h3>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_ip14" value="iPhone14" name="modele" />
+          <span>iPhone 14 / 14 Plus / 14 Pro / 14 Pro Max</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_ip13" value="iPhone13" name="modele" />
+          <span>iPhone 13 / 13 mini / 13 Pro / 13 Pro Max</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_ip12" value="iPhone12" name="modele" />
+          <span>iPhone 12 / 12 mini / 12 Pro / 12 Pro Max</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_older" value="iPhoneOther" name="modele" />
+          <span>Autre modèle iPhone</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="stack">
+          <span>Décrivez le problème</span>
+          <input type="text" name="problem" required placeholder="Ex. écran, batterie, haut-parleur..." />
+        </label>
+      </div>
+
+      <ul class="links">
+        <li><a href="{{ url_for('android_form') }}">Aller aux modèles Android</a></li>
+      </ul>
+
+      <div class="buttons">
+        <button type="submit" class="btn-primary">Envoyer</button>
+        <button type="button" class="btn-ghost" onclick="history.back()" ; href="{{ url_for('index') }}>Annuler</button>
+      </div>
+    </fieldset>
+  </form>
+</section>
+{% endblock %}

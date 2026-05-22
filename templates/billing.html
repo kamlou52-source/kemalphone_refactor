@@ -1,0 +1,60 @@
+
+{% extends 'base.html' %}
+{% set no_footer = true %}
+{% block content %}
+<h2>{{ _('Facturation / Devis') }}</h2>
+<form method="POST" class="form" id="billForm">
+  <label>{{ _('Client (Nom)') }}
+    <input type="text" name="customer_name" required>
+  </label>
+  <label>E-mail
+    <input type="email" name="customer_email">
+  </label>
+
+  <fieldset>
+    <legend>{{ _('Articles') }}</legend>
+    <div id="items"></div>
+    <button class="btn" type="button" id="addItem">{{ _('Ajouter un article') }}</button>
+  </fieldset>
+
+  <label>{{ _('Mode') }}
+    <select name="method">
+      <option value="quote">{{ _('Obtenir un devis') }}</option>
+      <option value="pay_now">{{ _('Payer maintenant') }}</option>
+      <option value="pay_on_pickup">{{ _('Payer au retrait') }}</option>
+    </select>
+  </label>
+
+  <input type="hidden" name="items_count" id="items_count" value="0">
+  <button class="btn" type="submit">{{ _('Générer') }}</button>
+</form>
+
+<script>
+let count = 0;
+document.getElementById('addItem').addEventListener('click', () => {
+  count++;
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-2';
+  wrap.innerHTML = `
+    <label>Description
+      <input type="text" name="desc_${count}" required>
+    </label>
+    <label>Qté
+      <input type="number" name="qty_${count}" min="1" step="1" value="1" required>
+    </label>
+    <label>Prix unitaire (CHF)
+      <input type="number" name="price_${count}" min="0" step="0.05" value="0" required>
+    </label>
+    <label>TVA
+      <select name="vat_${count}">
+        <option value="standard">8.1% (standard)</option>
+        <option value="reduit">2.6% (réduit)</option>
+        <option value="special">3.8% (spécial)</option>
+      </select>
+    </label>
+  `;
+  document.getElementById('items').appendChild(wrap);
+  document.getElementById('items_count').value = count;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: templates/billing.html
+msgid "Facturation / Devis"
+msgstr "Billing / Quote"
+
+msgid "Client (Nom)"
+msgstr "Customer (Name)"
+
+msgid "Articles"
+msgstr "Items"
+
+msgid "Mode"
+msgstr "Mode"
+
+msgid "Générer"
+msgstr "Generate"
+
+#: templates/invoice.html
+msgid "Facture / Devis"
+msgstr "Invoice / Quote"
+
+msgid "Client"
+msgstr "Customer"
+
+msgid "Article"
+msgstr "Item"
+
+msgid "Qté"
+msgstr "Qty"
+
+msgid "PU (CHF)"
+msgstr "Unit price (CHF)"
+
+msgid "Montant (CHF)"
+msgstr "Amount (CHF)"
+
+msgid "Sous-total"
+msgstr "Subtotal"
+
+msgid "TVA"
+msgstr "VAT"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Statut"
+msgstr "Status"
+
+msgid "Nouvelle facture / devis"
+msgstr "New invoice / quote"
+
+#: flashes and auth
+msgid "Accès réservé aux administrateurs."
+msgstr "Admins only."
+
+msgid "Accès réservé au personnel."
+msgstr "Staff only."
+
+msgid "Langue changée."
+msgstr "Language changed."
+
+msgid "Langue non supportée."
+msgstr "Unsupported language."
+
+msgid "Veuillez renseigner le client et au moins un article."
+msgstr "Please provide customer and at least one item."
+
+msgid "Paiement validé."
+msgstr "Payment confirmed."
+
+msgid "Commande enregistrée. Paiement au retrait."
+msgstr "Order saved. Pay on pickup."
+
+msgid "Devis généré."
+msgstr "Quote generated."
+
+msgid "E-mail non configuré. Veuillez définir Flask-Mail."
+msgstr "Email not configured. Please set up Flask-Mail."
+
+msgid "E-mail envoyé."
+msgstr "Email sent."
+
+#: navbar
+msgid "Facturation"
+msgstr "Billing"

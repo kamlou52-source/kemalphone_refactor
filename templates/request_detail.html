@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Demande #{{ u.id }} — El Kémal Phone’s Solutions{% endblock %}
+{% block content %}
+<section style="padding:1rem; max-width:840px; margin:0 auto">
+  <div class="card">
+    <h2>Détail de la demande #{{ u.id }}</h2>
+    <p><strong>Prénom :</strong> {{ u.fname }}</p>
+    <p><strong>Modèle :</strong> {{ u.modele }}</p>
+    <p><strong>Problème :</strong><br>{{ u.problem }}</p>
+    <p class="muted"><strong>Créée le :</strong> {{ u.created.strftime("%Y-%m-%d %H:%M") if u.created else "" }}</p>
+    <div style="margin-top:.5rem">
+      <a class="btn-ghost" href="{{ url_for('requests_list') }}">← Retour à la liste</a>
+      <a class="btn-primary" href="{{ url_for('index') }}">Accueil</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

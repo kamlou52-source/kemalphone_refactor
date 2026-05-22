@@ -1,0 +1,40 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ _('Facture / Devis') }} #{{ inv.id }}</h2>
+<p><b>{{ _('Client') }}:</b> {{ inv.customer_name }} – {{ inv.customer_email or '—' }}</p>
+<table class="table">
+  <thead><tr><th>{{ _('Article') }}</th><th>{{ _('Qté') }}</th><th>{{ _('PU (CHF)') }}</th><th>{{ _('TVA') }}</th><th>{{ _('Montant (CHF)') }}</th></tr></thead>
+  <tbody>
+    {% for it in items %}
+      <tr>
+        <td>{{ it.description }}</td>
+        <td>{{ it.qty }}</td>
+        <td>{{ '%.2f'|format(it.unit_price) }}</td>
+        <td>{{ (it.vat_rate*100)|round(1) }}%</td><td>{{ '%.2f'|format(it.qty * it.unit_price) }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><td colspan="3" style="text-align:right">{{ _('Sous-total') }}</td><td>{{ '%.2f'|format(inv.subtotal) }}</td></tr>
+    <tr><td colspan="3" style="text-align:right">{{ _('TVA') }} ({{ vat_rate }}%)</td><td>{{ '%.2f'|format(inv.vat_amount) }}</td></tr>
+    <tr><td colspan="3" style="text-align:right"><b>{{ _('Total') }}</b></td><td><b>{{ '%.2f'|format(inv.total) }}</b></td></tr>
+  </tfoot>
+</table>
+<p>{{ _('Statut') }} : <b>{{ inv.status }}</b> — {{ _('Mode') }} : {{ inv.method }}</p>
+<a class="btn" href="{{ url_for('billing') }}">{{ _('Nouvelle facture / devis') }}</a>
+{% endblock %}
+
+<p><a class="btn" href="{{ url_for('invoice_pdf', invoice_id=inv.id) }}">Télécharger PDF</a>
+{% if inv.customer_email %}
+  <form method="POST" action="{{ url_for('invoice_email', invoice_id=inv.id) }}" style="display:inline"><button class="btn" type="submit">Envoyer par e-mail</button></form>
+{% endif %}
+</p>
+
+{% if inv.method == 'pay_now' and inv.status != 'paid' %}
+  <a class="btn" href="{{ url_for('stripe_checkout', invoice_id=inv.id) }}">Payer avec Stripe</a>
+{% endif %}
+
+{% if inv.method == 'pay_now' and inv.status != 'paid' %}
+<p><a class="btn" href="{{ url_for('pay_checkout', invoice_id=inv.id) }}">Payer maintenant (Stripe)</a></p>
+{% endif %}

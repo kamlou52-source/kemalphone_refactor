@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="form-page phone-form">
+  <h3>Votre prénom</h3>
+  <form action="{{ url_for('userinput_form') }}" method="POST">
+    <div class="form-row">
+      <label for="fname">Prénom</label>
+      <!-- Autorise lettres + espaces/accents/tirets (cohérent avec la validation Python) -->
+      <input
+        type="text"
+        name="fname"
+        id="fname"
+        required
+        pattern="^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ\s'-]{0,49}$"
+      >
+    </div>
+    <div class="buttons">
+      <button class="btn-primary" type="submit">Envoyer</button>
+      <a class="btn-ghost" href="{{ url_for('index') }}">Annuler</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

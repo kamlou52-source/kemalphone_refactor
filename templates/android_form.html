@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Android — El Kémal Phone’s Solutions{% endblock %}
+
+{% set no_footer = true %}
+{% block content %}
+<section class="form-page">
+  <p>Bonjour {{ fname }} 👋</p>
+<form action="{{ url_for('android_form') }}" method="POST" name="modele" class="phone-form">
+    <fieldset>
+      <h3>Les modèles de téléphones sous Android</h3>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_galaxy" value="GalaxyS23" name="modele" />
+          <span>Galaxy S23, S23+, S23 Ultra et toute la série Galaxy</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_pixel" value="GooglePixel7" name="modele" />
+          <span>Google Pixel 7 (128/256 Go), Pixel 6/6a/6 Pro, Pixel 5/4 et séries Google</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_oppo" value="Oppo" name="modele" />
+          <span>Oppo Find X5 Pro</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_xiaomi" value="Xiaomi" name="modele" />
+          <span>Xiaomi 13 Pro, 12 Pro, 5G</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="radio">
+          <input type="radio" id="mdl_other" value="AndroMod" name="modele" />
+          <span>Autre modèle Android</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="stack">
+          <span>Décrivez le problème</span>
+          <input type="text" name="problem" required placeholder="Ex. écran fissuré, batterie, micro..." />
+        </label>
+      </div>
+
+      <ul class="links">
+        <li><a href="{{ url_for('ios_form') }}">Aller aux modèles iPhone</a></li>
+      </ul>
+
+      <div class="buttons">
+        <button type="submit" class="btn-primary">Envoyer</button>
+        <button type="button" class="btn-ghost" onclick="history.back()"; href="{{ url_for('index') }}">Annuler</button>
+      </div>
+    </fieldset>
+  </form>
+</section>
+{% endblock %}

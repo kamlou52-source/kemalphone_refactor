@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% set no_footer = true %}
+{% block content %}
+<h2>Pièces jointes</h2>
+
+<form method="post" enctype="multipart/form-data" class="stack" style="max-width:480px">
+  <input type="file" name="file" required>
+  <button class="btn">Envoyer</button>
+</form>
+
+<h3>Fichiers</h3>
+<ul>
+  {% for name in files %}
+    <li><a href="{{ url_for('uploaded_file', filename=name) }}" target="_blank" rel="noopener">{{ name }}</a></li>
+  {% else %}
+    <li>Aucun fichier.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

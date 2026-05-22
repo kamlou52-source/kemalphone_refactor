@@ -1,0 +1,39 @@
+services:
+  app:
+    build: .
+    container_name: kemal_app
+    ports:
+      - "5000:5000"
+    env_file:
+      - .venv.env
+      - .env.flask
+      - .env.docker
+    depends_on:
+      - db
+      - mailhog
+
+  db:
+    image: postgres:14
+    environment:
+      DATABASE_URL: postgresql+psycopg2://kemal:kemalpass@db:5432/kemaldb
+      POSTGRES_USER: kemal
+      POSTGRES_PASSWORD: kemalpass
+      POSTGRES_DB: kemaldb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

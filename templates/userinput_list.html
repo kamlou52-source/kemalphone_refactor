@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% set no_footer = true %}
+{% block content %}
+<h2>Demandes récentes</h2>
+
+<form method="get" action="{{ url_for('userinput_list') }}" class="stack" style="margin: .5rem 0 1rem;">
+  <div class="form-row" style="display:flex; gap:.5rem; flex-wrap:wrap;">
+    <input type="text" name="q" value="{{ request.args.get('q','') }}"
+           placeholder="Recherche (nom, modèle, problème)" style="flex:2; min-width:240px;">
+    <select name="modele" style="flex:1; min-width:180px;">
+      <option value="">— Tous les modèles —</option>
+      {% for m in models %}
+        <option value="{{ m }}" {{ 'selected' if request.args.get('modele')==m else '' }}>{{ m }}</option>
+      {% endfor %}
+    </select>
+    <input type="date" name="start" value="{{ request.args.get('start','') }}">
+    <input type="date" name="end"   value="{{ request.args.get('end','') }}">
+    <select name="per_page">
+      {% for n in [10,20,50] %}
+        <option value="{{ n }}" {{ 'selected' if request.args.get('per_page','20')|int==n else '' }}>{{ n }}/page</option>
+      {% endfor %}
+    </select>
+    <button class="btn-primary" type="submit">Filtrer</button>
+    <a class="btn-ghost" href="{{ url_for('userinput_list') }}">Réinitialiser</a>
+
+    {% if current_user.is_authenticated and current_user.role == 'admin' %}
+      <a class="btn-ghost" href="{{ url_for('export_userinputs_csv',
+           q=request.args.get('q',''),
+           modele=request.args.get('modele',''),
+           start=request.args.get('start',''),
+           end=request.args.get('end','')) }}">Exporter CSV</a>
+    {% endif %}
+  </div>
+</form>
+<div class="table-wrap">
+  <table class="table userinputs">
+    <colgroup>
+      <col style="width:18%">
+      <col style="width:22%">
+      <col> <!-- Problème prend l’espace restant -->
+      <col style="width:18%">
+      <col style="width:10%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Prénom</th>
+        <th>Modèle</th>
+        <th>Problème</th>
+        <th>Créée</th>
+        <th></th>
+      </tr>
+    </thead>
+    <ul><tbody>
+      {% for u in userinputs %}
+      <li><tr>
+        <td>{{ u.fname }}</td>
+        <td>{{ u.modele }}</td>
+        <td>{{ u.problem }}</td>
+        <td>{{ u.created.strftime('%Y-%m-%d %H:%M') if u.created else '' }}</td>
+        <td><a class="btn-ghost" href="{{ url_for('userinput_detail', rid=u.id) }}">Voir</a></td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5">Aucune demande pour le moment.</td>
+      </tr></li>
+      {% endfor %}
+    </ul></tbody>
+  </table>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="pager" style="margin-top:1rem; display:flex; gap:.5rem; align-items:center;">
+  {% if pagination.has_prev %}
+    <a class="btn-ghost" href="{{ url_for('userinput_list',
+        page=pagination.prev_num,
+        per_page=pagination.per_page,
+        q=request.args.get('q',''),
+        modele=request.args.get('modele',''),
+        start=request.args.get('start',''),
+        end=request.args.get('end','')) }}">◀ Précédent</a>
+  {% endif %}
+  <span class="muted">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+  {% if pagination.has_next %}
+    <a class="btn-ghost" href="{{ url_for('userinput_list',
+        page=pagination.next_num,
+        per_page=pagination.per_page,
+        q=request.args.get('q',''),
+        modele=request.args.get('modele',''),
+        start=request.args.get('start',''),
+        end=request.args.get('end','')) }}">Suivant ▶</a>
+  {% endif %}
+</nav>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,205 @@
+/* ====== Layout global (footer collé en bas) ====== */
+html, body { height: 100%; }
+body{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  background-color: transparent;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page { min-height: 100dvh; display: flex; flex-direction: column; }
+.content { flex: 1; }
+
+/* ====== Header / Navbar (sans burger) ====== */
+.head{
+  position: sticky; top: 0; left: 0; width: 100%;
+  background: #13689e; color: #fff; z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+nav{
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 1rem;
+  padding: .6rem 1rem;
+}
+.logo{
+  grid-column: 2 / 3;
+  text-align: center;
+}
+.logo h1{
+  margin: 0;
+  font-size: clamp(1.4rem, 3.6vw, 2.6rem);
+  color: #ff3b3b; /* titre rouge demandé */
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+/* Menu principal */
+.menu{
+  grid-column: 3 / 4;
+  justify-self: end;
+  display: flex; flex-wrap: wrap;
+  gap: .25rem; align-items: center; list-style: none; margin: 0; padding: 0;
+}
+.menu > li{ position: relative; }
+.menu > li > a{
+  display: block; padding: .55rem .9rem; border-radius: 8px;
+  color: #fff; text-decoration: none; line-height: 1;
+}
+.menu > li > a:hover,
+.menu > li:hover > a{
+  background: #2bab0d; color: #fff;
+}
+
+/* Sous-menus */
+.sub-menu-1{
+  display: none; position: absolute; top: 100%; left: 0;
+  background: #fff; color: #111; border: 1px solid #e7e7e7; border-radius: 10px;
+  min-width: 220px; box-shadow: 0 10px 26px rgba(0,0,0,.12); padding: .25rem; z-index: 10;
+}
+.sub-menu-1 li{ list-style: none; }
+.sub-menu-1 a{
+  display: block; padding: .6rem .75rem; border-radius: 8px;
+  text-decoration: none; color: #111;
+}
+.sub-menu-1 a:hover{ background: #f3f6ff; color: #0a58ca; }
+.menu > li:hover > .sub-menu-1{ display: block; }
+
+/* Lang switch éventuel */
+.lang-switch { display: flex; align-items: center; gap: .5rem; }
+.lang-switch a{ color: #fff; text-decoration: none; padding: .2rem .4rem; border-radius: 6px; }
+.lang-switch a:hover{ background: rgba(255,255,255,.18); }
+
+/* Petits écrans : le menu passe à la ligne, on centre mieux l’ensemble */
+@media (max-width: 900px){
+  nav{ grid-template-columns: 1fr; gap: .5rem; }
+  .logo{ grid-column: 1 / -1; }
+  .menu{ grid-column: 1 / -1; justify-self: center; justify-content: center; }
+}
+
+/* ====== Section héro (image d’arrière-plan) ====== */
+.home .hero{
+  min-height: 60dvh;
+  background: url('/static/img/hero.jpg') center / cover no-repeat; /* chemin statique */
+  position: relative; display: flex; align-items: center; justify-content: center;
+  isolation: isolate;
+}
+.home .hero::after{
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.45));
+  z-index: 0;
+}
+.hero-inner{ position: relative; z-index: 1; text-align: center; color: #fff; padding: 3rem 1rem; }
+.hero-inner h2{ margin: 0 0 .6rem; font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; }
+
+/* ====== Boutons ====== */
+.btn,
+.btn-primary,
+.btn-ghost{
+  display: inline-block; margin: .25rem; padding: .6rem 1rem; border-radius: 12px;
+  text-decoration: none; border: 0; cursor: pointer;
+  font-weight: 600;
+}
+.btn-primary{ background: #0b5; color: #fff; }
+.btn-primary:hover{ filter: brightness(.95); }
+.btn-ghost{ background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.4); }
+.btn-ghost:hover{ background: rgba(255,255,255,.22); }
+
+/* ====== Cartes / grilles ====== */
+.cards{ padding: 2rem 1rem; }
+.cards h3{ margin: 0 0 1rem; }
+.grid{ display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.card{
+  background: #16f5f5; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  padding: 1rem;
+}
+.card-title{ font-weight: 700; margin-bottom: .25rem; }
+.card-meta{ margin-top: .5rem; }
+
+/* ====== Formulaires (Android / iOS) ====== */
+.form-page{ padding: 1rem; }
+.phone-form{ max-width: 680px; margin: 0 auto; }
+.phone-form fieldset{
+  background: #00ffff1a; border: 5px solid #0a58ca; padding: 1rem; border-radius: 12px;
+}
+.phone-form h3{
+  margin: -.5rem -1rem 1rem -1rem; padding: 10px;
+  background: #0a58ca; color: #00e0ff; border-top-left-radius: 8px; border-top-right-radius: 8px;
+}
+.form-row{ margin-bottom: 12px; }
+.radio{ display: flex; gap: .6rem; align-items: flex-start; }
+.radio input{ margin-top: .25rem; }
+.stack{ display: flex; flex-direction: column; gap: .4rem; }
+input[type="text"]{
+  padding: .55rem .7rem; border: 1px solid #c9d4ff; border-radius: 10px; width: 100%;
+}
+.links{ list-style: none; padding: 0; margin: .4rem 0; }
+.links li{ margin-bottom: .4rem; }
+.links a{ text-decoration: underline; color: #0a58ca; }
+.buttons{ display: flex; gap: .6rem; margin-top: .6rem; }
+.btn-form-primary{ background: #ff70a6; color: #111; border: 0; padding: .55rem 1rem; border-radius: 20px; cursor: pointer; }
+.btn-form-ghost{ background: #f5f5f5; border: 1px solid #e0e0e0; color: #111; padding: .55rem 1rem; border-radius: 20px; cursor: pointer; }
+.btn-form-ghost:hover{ background: #eee; }
+@media (max-width: 600px){ .phone-form{ padding: 0 .5rem; } }
+
+/* ====== Tables ====== */
+.table-wrap{ overflow: auto; border: 1px solid #eee; border-radius: 10px; }
+.table{ width: 100%; border-collapse: collapse; }
+.table th, .table td{ border-bottom: 1px solid #eee; padding: .5rem .6rem; vertical-align: top; }
+.table th{ background: #fafafa; position: sticky; top: 0; }
+/* Alignements propres, espaces confortables */
+.table thead th { text-align: left; font-weight: 700; }
+.table td, .table th { padding: .6rem .75rem; vertical-align: middle; }
+
+/* Lignes bien séparées + zébrage léger */
+.table tbody tr:nth-child(even) { background: #fafafa; }
+
+/* Séparateurs verticaux doux pour un vrai “en colonnes” */
+.table.userinputs th + th,
+.table.userinputs td + td { border-left: 1px solid #eee; }
+
+/* Badge pour la colonne modèle */
+.badge {
+  display: inline-block;
+  padding: .22rem .5rem;
+  border-radius: 999px;
+  background: #eef5ff;
+  border: 1px solid #dfeaff;
+  color: #0a58ca;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+
+/* Problème tronqué proprement (sur desktop) */
+.cell-ellipsis {
+  display: block;
+  max-width: 520px;        /* ajuste selon ton layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ====== Footer (collé en bas, centré) ====== */
+.site-footer{
+  margin-top: auto;
+  background: #f8f9fa;
+  padding: .8rem 1rem;
+  color: #6c757d;
+}
+.site-footer .container{
+  max-width: 1100px; margin: 0 auto; text-align: center;
+}
+.social{
+  display: flex; justify-content: center; align-items: center; gap: .6rem; flex-wrap: wrap;
+  margin-bottom: .35rem;
+}
+.social a{
+  display: inline-flex; align-items: center; gap: .35rem;
+  text-decoration: none; color: #0a58ca;
+  background: #eef5ff; border: 1px solid #dfeaff; padding: .35rem .6rem; border-radius: 999px;
+}
+.social a:hover{ background: #e6f0ff; }
+.footnote{ color: #666; font-size: .95rem; margin: .25rem 0 0; }
+
+/* ====== Utilitaires ====== */
+.muted{ color: #666; }
+.hidden{ display: none !important; }

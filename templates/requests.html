@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Demandes — El Kémal Phone’s Solutions{% endblock %}
+{% block content %}
+<section style="padding:1rem">
+  <h2>Historique des demandes</h2>
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>ID</th><th>Prénom</th><th>Modèle</th><th>Problème</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for u in rows %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.fname }}</td>
+          <td>{{ u.modele }}</td>
+          <td>{{ u.problem }}</td>
+          <td>{{ u.created.strftime("%Y-%m-%d %H:%M") if u.created else "" }}</td>
+          <td><a class="btn-ghost" href="{{ url_for('request_detail', rid=u.id) }}">Voir</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">Aucune demande enregistrée.</p>
+  {% endif %}
+  <p style="margin-top:1rem"><a class="btn-primary" href="{{ url_for('index') }}">← Retour à l’accueil</a></p>
+  {% endblock %}

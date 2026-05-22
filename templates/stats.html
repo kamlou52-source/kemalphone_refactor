@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% set no_footer = true %}
+{% block content %}
+<h2>Statistiques</h2>
+<div class="grid-2">
+  <canvas id="modelsChart"></canvas>
+  <canvas id="problemsChart"></canvas>
+</div>
+<p>Total demandes: <b>{{ stats.total }}</b></p>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const statsData = JSON.parse('{{ stats|tojson | safe }}');
+
+const ctx1 = document.getElementById('modelsChart').getContext('2d');
+new Chart(ctx1, {
+  type: 'pie',
+  data: {
+    labels: Object.keys(statsData.models),
+    datasets: [{ data: Object.values(statsData.models) }]
+  }
+});
+
+const ctx2 = document.getElementById('problemsChart').getContext('2d');
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: Object.keys(statsData.problems),
+    datasets: [{ data: Object.values(statsData.problems) }]
+  },
+  options: { plugins: { legend: { display: false } } }
+});
+</script>
+{% endblock %}

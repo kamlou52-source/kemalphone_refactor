@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Assistant IA — El Kémal Phone’s Solutions{% endblock %}
+
+<div class="muted" style="margin:.5rem 0;">
+  Vitesse :
+  <input id="readmeSpeed" type="range" min="0.25" max="3" step="0.25" value="1" />
+</div>
+<pre id="readme" style="white-space:pre-wrap;"></pre>
+{% block content %}
+<section class="assistant-wrap" style="padding:1rem">
+  <div class="assistant-grid">
+    <!-- Panneau Coach IA -->
+    <div class="panel card">
+      <h2>Assistant / Coach</h2>
+      <p class="muted">Posez une question (Flask, DB, Front, Déploiement…).</p>
+      <form id="coach-form">
+        <textarea id="coach-q" rows="4" placeholder="Ex.: Comment structurer mes Blueprints Flask ?" style="width:100%;"></textarea>
+        <button class="btn-primary" type="submit" style="margin-top:.5rem">Obtenir un conseil</button>
+      </form>
+      <div id="coach-ans" class="card" style="margin-top:1rem; background:#f9f9f9;"></div>
+    </div>
+
+    <!-- Panneau README Presenter -->
+    <div class="panel card">
+      <h2>README.md — Présentation progressive</h2>
+      <p class="muted">Le tableau se remplit ligne par ligne pour faciliter la lecture.</p>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>#</th><th>Contenu</th></tr></thead>
+          <tbody id="readme-tbody"><tr><td colspan="2" class="muted">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+      <div style="margin-top:.5rem">
+        <button id="btn-start" class="btn-primary">▶ Démarrer</button>
+        <button id="btn-stop" class="btn-ghost">⏸️ Stop</button>
+        <button id="btn-clear" class="btn-ghost">🧹 Vider</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.assistant-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
+.card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:1rem; }
+.table-wrap{ max-height:50vh; overflow:auto; border:1px solid #eee; border-radius:10px; }
+.table{ width:100%; border-collapse:collapse; }
+.table th, .table td{ border-bottom:1px solid #eee; padding:.5rem .6rem; vertical-align:top; }
+.table th{ background:#fafafa; position:sticky; top:0; }
+</style>
+
+<script>
+(function(){
+  // Coach IA
+  const form = document.getElementById('coach-form');
+  const ta = document.getElementById('coach-q');
+  const out = document.getElementById('coach-ans');
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const q = ta.value.trim();
+    if(!q){ out.textContent = 'Veuillez saisir une question.'; return; }
+    out.textContent = '…';
+    try{
+      const r = await fetch('{{ url_for("api_coach") }}', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({q})
+      });
+      const data = await r.json();
+      out.textContent = data.answer || '(pas de réponse)';
+    }catch(err){
+      out.textContent = 'Erreur réseau.';
+    }
+  });
+
+  // README Presenter
+  let lines = [], i = 0, timer = null;
+  const tbody = document.getElementById('readme-tbody');
+  const btnStart = document.getElementById('btn-start');
+  const btnStop  = document.getElementById('btn-stop');
+  const btnClear = document.getElementById('btn-clear');
+
+  async function loadReadme(){
+    const r = await fetch('{{ url_for("api_readme") }}');
+    const data = await r.json();
+    lines = data.lines || [];
+    i = 0;
+    tbody.innerHTML = '';
+  }
+  function step(){
+    if(i >= lines.length){ clearInterval(timer); timer=null; return; }
+    const tr = document.createElement('tr');
+    const idx = document.createElement('td'); idx.textContent = (i+1);
+    const cell = document.createElement('td'); cell.textContent = lines[i];
+    tr.appendChild(idx); tr.appendChild(cell);
+    tbody.appendChild(tr);
+    i++;
+    // Auto-scroll vers le bas
+    tr.scrollIntoView({behavior:'smooth', block:'end'});
+  }
+  btnStart.addEventListener('click', async ()=>{
+    if(!lines.length) await loadReadme();
+    if(timer) return;
+    // cadence: 600ms/ligne (ajustez)
+    timer = setInterval(step, 600);
+  });
+  btnStop.addEventListener('click', ()=>{ if(timer){ clearInterval(timer); timer=null; }});
+  btnClear.addEventListener('click', ()=>{ tbody.innerHTML=''; i=0; });
+
+  // Précharge silencieuse
+  loadReadme().catch(()=>{});
+}());
+</script>
+{% endblock %}
