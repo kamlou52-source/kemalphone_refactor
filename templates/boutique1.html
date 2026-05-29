@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Boutique — El Kémal Phone’s Solutions{% endblock %}
+{% block body_class %}boutique{% endblock %}
+{% block content %}
+<section class="hero" style="background-image:url('{{ url_for('static', filename='img/hero.jpg') }}')">
+  <div class="hero-inner">
+    <h2>{{ _('Boutique en ligne') }}</h2>
+    <p>{{ _('Parcourez nos produits reconditionnés, pièces et accessoires pour smartphone.') }}</p>
+    <p>
+      <a class="btn-primary" href="{{ url_for('userinput_form') }}">{{ _('Commander / Réparer') }}</a>
+      <a class="btn-ghost" href="{{ url_for('contact') }}">{{ _('Contact / QR') }}</a>
+    </p>
+  </div>
+</section>
+
+<section class="shop-entry">
+  <div class="section-header">
+    <h3>{{ _('Nos produits en stock') }}</h3>
+    <p>{{ _('Tous les articles sont inspectés et prêts à expédier depuis Lausanne.') }}</p>
+  </div>
+  <div class="product-grid">
+    {% for product in products %}
+    <article class="product-card">
+      <div class="product-card-head">
+        <strong>{{ product.name }}</strong>
+      </div>
+      <div class="product-card-body">
+        <p>{{ product.description }}</p>
+      </div>
+      <div class="product-card-footer">
+        <span class="price">{{ product.price }}</span>
+        <a class="btn-secondary" href="{{ url_for('product_detail', slug=product.slug) }}">{{ _('Voir les détails') }}</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="order-section">
+  <div class="section-header">
+    <h3>{{ _('Commande rapide') }}</h3>
+    <p>{{ _('Sélectionnez un produit, indiquez vos coordonnées et envoyez-nous votre demande en quelques clics.') }}</p>
+  </div>
+  <form class="form order-form" method="post">
+    <div class="order-row">
+      <label>
+        {{ _('Produit') }}
+        <select name="product_name" required>
+          <option value="">{{ _('Choisissez un produit') }}</option>
+          {% for product in products %}
+          <option value="{{ product.name }}" {% if product.name == selected_product %}selected{% endif %}>
+            {{ product.name }} — {{ product.price }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        {{ _('Quantité') }}
+        <input type="number" name="quantity" min="1" value="{{ request.form.quantity or 1 }}" required>
+      </label>
+    </div>
+    <div class="order-row">
+      <label>
+        {{ _('Nom') }}
+        <input type="text" name="customer_name" value="{{ request.form.customer_name or '' }}" required>
+      </label>
+      <label>
+        {{ _('E-mail') }}
+        <input type="text" name="customer_email" value="{{ request.form.customer_email or '' }}" required>
+      </label>
+    </div>
+    <label>
+      {{ _('Commentaires') }}
+      <input type="text" name="comment" value="{{ request.form.comment or '' }}" placeholder="{{ _('Ex : retrait en boutique, envoi postal...') }}">
+    </label>
+    <button type="submit" class="btn">{{ _('Commander maintenant') }}</button>
+  </form>
+</section>
+
+<section class="after-sales">
+  <div class="section-header">
+    <h3>{{ _('Service après-vente') }}</h3>
+    <p>{{ _('Nous gardons le contact après votre achat avec des garanties claires et un support dédié.') }}</p>
+  </div>
+  <div class="after-sales-grid">
+    <article>
+      <h4>{{ _('Garantie locale') }}</h4>
+      <p>{{ _('12 mois de garantie sur tous les appareils reconditionnés et réparations professionnelles.') }}</p>
+    </article>
+    <article>
+      <h4>{{ _('Retour simplifié') }}</h4>
+      <p>{{ _('Renvoyez votre article ou déposez-le en boutique pour échange ou réparation.') }}</p>
+    </article>
+    <article>
+      <h4>{{ _('Assistance technique') }}</h4>
+      <p>{{ _('Support par e-mail, téléphone et QR pour un diagnostic rapide.') }}</p>
+    </article>
+  </div>
+</section>
+{% endblock %}

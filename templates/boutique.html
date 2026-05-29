@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Boutique — EL Kémal Phone Solutions{% endblock %}
+
+{% block content %}
+<!-- ══════════════════════════ EN-TÊTE BOUTIQUE ═══════════════════════════ -->
+<section class="shop-hero">
+  <div class="container">
+    <h1 class="shop-hero__title">Notre Boutique</h1>
+    <p class="shop-hero__sub">
+      Smartphones reconditionnés certifiés &amp; accessoires — livrés ou à retirer en atelier.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════ FILTRES CATÉGORIES ════════════════════════════ -->
+<section class="shop-filters">
+  <div class="container">
+    <nav class="filter-nav" aria-label="Filtrer par catégorie">
+      <a href="{{ url_for('boutique') }}"
+         class="filter-btn {% if not active_cat %}filter-btn--active{% endif %}">
+        Tout
+      </a>
+      {% for cat in categories %}
+      <a href="{{ url_for('boutique', cat=cat) }}"
+         class="filter-btn {% if active_cat == cat %}filter-btn--active{% endif %}">
+        {{ cat }}
+      </a>
+      {% endfor %}
+    </nav>
+  </div>
+</section>
+
+<!-- ══════════════════════════ GRILLE PRODUITS ═══════════════════════════════ -->
+<section class="section shop-grid-section">
+  <div class="container">
+    {% if products %}
+    <p class="shop-count">{{ products|length }} produit{{ 's' if products|length > 1 else '' }} disponible{{ 's' if products|length > 1 else '' }}</p>
+
+    <div class="shop-grid">
+      {% for p in products %}
+      <article class="product-card">
+        <!-- Image / Visuel AI placeholder -->
+        <a href="{{ url_for('product_detail', slug=p.slug) }}" class="product-card__media-link">
+          <div class="product-card__media">
+            <img
+              src="{{ url_for('static', filename=p.image) }}"
+              alt="{{ p.name }}"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/products/placeholder.svg') }}'"
+            >
+            {% if p.video %}
+            <div class="product-card__video-badge" title="Démo vidéo disponible">▶ Vidéo</div>
+            {% endif %}
+          </div>
+        </a>
+
+        <div class="product-card__body">
+          <div class="product-card__meta">
+            <span class="product-card__cat">{{ p.category }}</span>
+            {% if p.badge %}
+            <span class="product-card__badge">{{ p.badge }}</span>
+            {% endif %}
+          </div>
+
+          <h2 class="product-card__name">
+            <a href="{{ url_for('product_detail', slug=p.slug) }}">{{ p.name }}</a>
+          </h2>
+          <p class="product-card__desc">{{ p.description }}</p>
+
+          <div class="product-card__footer">
+            <span class="product-card__price">{{ p.price }}</span>
+            <a href="{{ url_for('product_detail', slug=p.slug) }}" class="btn btn--primary btn--sm">
+              Voir le produit
+            </a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="shop-empty">
+      <p>Aucun produit dans cette catégorie pour l'instant.</p>
+      <a href="{{ url_for('boutique') }}" class="btn btn--outline">Voir tout le catalogue</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ══════════════════════════ BANDEAU RÉPARATION ════════════════════════════ -->
+<section class="repair-banner">
+  <div class="container repair-banner__inner">
+    <div>
+      <h3>Votre appareil est cassé ?</h3>
+      <p>Déposez une demande de réparation — devis gratuit en 2 h.</p>
+    </div>
+    <a href="{{ url_for('userinput_form') }}" class="btn btn--white">
+      📱 Demande de réparation
+    </a>
+  </div>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flashes container">
+    {% for cat, msg in messages %}
+    <div class="flash flash--{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+{% endblock %}

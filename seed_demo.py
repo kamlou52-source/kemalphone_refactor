@@ -1,6 +1,6 @@
 
 # seed_demo.py — Génère des données de démonstration
-from app import app, db, User, UserInput, Invoice, InvoiceItem, SWISS_VAT_RATES
+from app1 import app, db, User, UserInput, Invoice, InvoiceItem, SWISS_VAT_RATES
 from datetime import datetime, timedelta
 from random import choice, randint, random
 

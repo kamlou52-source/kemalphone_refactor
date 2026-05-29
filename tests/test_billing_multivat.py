@@ -1,9 +1,9 @@
 
-from app import db, Invoice, InvoiceItem, SWISS_VAT_RATES
+from app1 import db, Invoice, InvoiceItem, SWISS_VAT_RATES
 
 def test_multi_vat_calculation(client, db):
     # Login as staff
-    from app import User
+    from app1 import User
     u = User(email="s@test.com"); u.set_password("pw"); u.role="staff"
     db.session.add(u); db.session.commit()
     client.post("/login", data={"email":"s@test.com", "password":"pw"}, follow_redirects=True)

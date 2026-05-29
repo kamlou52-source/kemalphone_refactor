@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Accueil — El Kémal Phone’s Solutions{% endblock %}
+{% block body_class %}home{% endblock %}
+{% set no_footer = true %}
+{% block content %}
+<section class="home-hero">
+  <div>
+    <h2 style="font-size:clamp(1.4rem,3vw,2.2rem);margin-bottom:.5rem;">Bienvenue</h2>
+    <p>Réparations et solutions mobiles rapides et fiables.</p>
+  </div>
+</section>
+  <section class="hero" style="background-image:url('{{ url_for("static", filename="img/hero.jpg") }}')">
+    <div class="hero-inner">
+      <h2>{{ _('Réparation & solutions digitales') }}</h2>
+      <p>{{ _('Diagnostic rapide, devis transparent, service professionnel.') }}</p>
+      <p>
+        <a class="btn-primary" href="{{ url_for('userinput_form') }}">{{ _('Soumettre une demande') }}</a>
+        <a class="btn-secondary" href="{{ url_for('boutique') }}">{{ _('Visiter la boutique') }}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="shop-entry">
+    <div class="section-header">
+      <h3>{{ _('Boutique en ligne') }}</h3>
+      <p>{{ _('Découvrez nos appareils reconditionnés, pièces détachées et accessoires disponibles dès maintenant à Lausanne.') }}</p>
+    </div>
+    <div class="product-grid">
+      {% for product in products %}
+      <article class="product-card">
+        <div class="product-card-head">
+          <strong>{{ product.name }}</strong>
+        </div>
+        <div class="product-card-body">
+          <p>{{ product.description }}</p>
+        </div>
+        <div class="product-card-footer">
+          <span class="price">{{ product.price }}</span>
+          <a class="btn-secondary" href="{{ url_for('product_detail', slug=product.slug) }}">{{ _('Voir en boutique') }}</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="after-sales">
+    <div class="section-header">
+      <h3>{{ _('Service après-vente') }}</h3>
+      <p>{{ _('Nous restons à vos côtés après l’achat : assistance, garanties et réparations rapides.') }}</p>
+    </div>
+    <div class="after-sales-grid">
+      <article>
+        <h4>{{ _('Garantie & Retours') }}</h4>
+        <p>{{ _('Tous nos appareils reconditionnés sont couverts par une garantie de 12 mois et un service de retour simple.') }}</p>
+      </article>
+      <article>
+        <h4>{{ _('Support technique') }}</h4>
+        <p>{{ _('Conseils personnalisés et dépannage rapide pour vos smartphones, ordinateurs et électroménagers.') }}</p>
+      </article>
+      <article>
+        <h4>{{ _('Réparation sur mesure') }}</h4>
+        <p>{{ _('Remplacement de pièces et révisions effectués par nos techniciens spécialisés à Lausanne.') }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="cards">
+  <h3>{{ _('Dernières demandes') }}</h3>
+  {% if userinputs %}
+    <div class="grid">
+      {% for u in userinputs %}
+      <article class="card">
+        <div class="card-title">
+          <strong>{{ u.fname }}</strong> <span class="muted">— {{ u.modele }}</span>
+        </div>
+        <div class="card-body">{{ u.problem }}</div>
+        <div class="card-meta muted">
+          {{ u.created.strftime('%Y-%m-%d %H:%M') if u.created else '' }}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune demande pour l’instant.") }}</p>
+  {% endif %}
+</section>
+{% endblock %}

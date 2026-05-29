@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} — Boutique{% endblock %}
+{% block body_class %}product-detail{% endblock %}
+{% block content %}
+<section class="hero product-hero" style="background-image:url('{{ url_for('static', filename='img/' ~ product.image) }}')">
+  <div class="hero-inner">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.details }}</p>
+    <p>
+      <a class="btn-primary" href="{{ url_for('boutique') }}">{{ _('Retour à la boutique') }}</a>
+      <a class="btn-secondary" href="#order-form">{{ _('Commander maintenant') }}</a>
+    </p>
+  </div>
+</section>
+
+<section class="product-showcase">
+  <div class="section-header">
+    <h3>{{ _('Présentation du produit') }}</h3>
+    <p>{{ _('Découvrez les visuels et la vidéo de démonstration pour ce produit sélectionné.') }}</p>
+  </div>
+  <div class="image-grid">
+    <img src="{{ url_for('static', filename='img/' ~ product.image) }}" alt="{{ product.name }}" loading="lazy">
+    <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="Vue produit" loading="lazy">
+    <img src="{{ url_for('static', filename='img/backimageDrphone.jpg') }}" alt="Détail produit" loading="lazy">
+  </div>
+  <div class="video-preview">
+    <h4>{{ _('Vidéo de démonstration') }}</h4>
+    <p>{{ _('Une courte vidéo montre la qualité et la finition de nos produits reconditionnés.') }}</p>
+    <video controls muted playsinline poster="{{ url_for('static', filename='img/' ~ product.image) }}">
+      <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+      {{ _('Votre navigateur ne supporte pas la vidéo.') }}
+    </video>
+    <p class="hint">{{ _('Remplacez cette vidéo par un contenu IA personnalisé lorsque vous en disposerez.') }}</p>
+  </div>
+</section>
+
+<section class="shop-entry order-section" id="order-form">
+  <div class="section-header">
+    <h3>{{ _('Commander ce produit') }}</h3>
+    <p>{{ _('Remplissez ce formulaire rapide pour réserver ou demander un devis personnalisé.') }}</p>
+  </div>
+  <form class="form order-form" method="post">
+    <label>
+      {{ _('Produit') }}
+      <input type="text" name="product_name" value="{{ product.name }}" readonly>
+    </label>
+    <div class="order-row">
+      <label>
+        {{ _('Nom') }}
+        <input type="text" name="customer_name" value="{{ form_values.customer_name if form_values else '' }}" required>
+      </label>
+      <label>
+        {{ _('E-mail') }}
+        <input type="text" name="customer_email" value="{{ form_values.customer_email if form_values else '' }}" required>
+      </label>
+    </div>
+    <div class="order-row">
+      <label>
+        {{ _('Quantité') }}
+        <input type="number" name="quantity" min="1" value="{{ form_values.quantity if form_values else 1 }}" required>
+      </label>
+      <label>
+        {{ _('Prix unitaire') }}
+        <input type="text" value="{{ product.price }}" readonly>
+      </label>
+    </div>
+    <label>
+      {{ _('Commentaires') }}
+      <input type="text" name="comment" value="{{ form_values.comment if form_values else '' }}" placeholder="{{ _('Ex : retrait en boutique, livraison rapide...') }}">
+    </label>
+    <button type="submit" class="btn">{{ _('Commander ce produit') }}</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — EL Kémal Phone Solutions{% endblock %}
+
+{% block content %}
+<div class="container product-detail">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{{ url_for('index') }}">Accueil</a>
+    <span aria-hidden="true">›</span>
+    <a href="{{ url_for('boutique') }}">Boutique</a>
+    <span aria-hidden="true">›</span>
+    <a href="{{ url_for('boutique', cat=product.category) }}">{{ product.category }}</a>
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">{{ product.name }}</span>
+  </nav>
+
+  <div class="product-detail__layout">
+    <!-- ═══ COLONNE GAUCHE : Médias ══════════════════════════════════════════ -->
+    <div class="product-detail__media">
+      <!-- Image principale -->
+      <div class="product-detail__img-wrap">
+        <img
+          id="product-main-img"
+          src="{{ url_for('static', filename=product.image) }}"
+          alt="{{ product.name }}"
+          onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/products/placeholder.svg') }}'"
+        >
+        {% if product.badge %}
+        <span class="product-detail__badge">{{ product.badge }}</span>
+        {% endif %}
+      </div>
+
+      <!-- Vidéo de démonstration (IA / réelle) -->
+      {% if product.video %}
+      <div class="product-detail__video-section">
+        <h3 class="product-detail__video-title">🎬 Démonstration vidéo</h3>
+        <div class="product-detail__video-wrap">
+          <video
+            controls
+            preload="metadata"
+            poster="{{ url_for('static', filename=product.image) }}"
+            aria-label="Démonstration {{ product.name }}"
+          >
+            <source src="{{ url_for('static', filename=product.video) }}" type="video/mp4">
+            Votre navigateur ne supporte pas la vidéo HTML5.
+          </video>
+        </div>
+        <p class="product-detail__video-caption">
+          Vidéo de démonstration générée par IA · qualité représentative
+        </p>
+      </div>
+      {% else %}
+      <!-- Placeholder vidéo AI si pas de fichier réel -->
+      <div class="product-detail__video-section">
+        <h3 class="product-detail__video-title">🎬 Aperçu produit</h3>
+        <div class="product-detail__ai-video-placeholder" id="ai-video-{{ product.slug }}">
+          <div class="ai-video__screen">
+            <div class="ai-video__icon">📱</div>
+            <p class="ai-video__label">Vidéo de démonstration bientôt disponible</p>
+            <p class="ai-video__sub">Visualisation IA en cours de génération</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ═══ COLONNE DROITE : Infos + Commande ════════════════════════════════ -->
+    <div class="product-detail__info">
+      <span class="product-detail__cat-tag">{{ product.category }}</span>
+      <h1 class="product-detail__name">{{ product.name }}</h1>
+      <p class="product-detail__price">{{ product.price }}</p>
+
+      <div class="product-detail__desc">
+        <p>{{ product.description }}</p>
+      </div>
+
+      <!-- Points forts -->
+      <ul class="product-detail__perks">
+        <li>✅ Testé et certifié par nos techniciens</li>
+        <li>🔋 Batterie ≥ 80 % garantie</li>
+        <li>🛡 Garantie 6 mois pièces &amp; main-d'œuvre</li>
+        <li>📦 Livraison ou retrait en atelier</li>
+        <li>💳 Paiement sur place ou en ligne</li>
+      </ul>
+
+      <!-- Formulaire de commande -->
+      <form action="{{ url_for('product_order', slug=product.slug) }}" method="post" class="order-form">
+        <div class="order-form__row">
+          <label for="qty">Quantité</label>
+          <select id="qty" name="qty" class="order-form__select">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn--primary btn--lg btn--full">
+          🛒 Commander ce produit
+        </button>
+        <p class="order-form__note">
+          Vous serez contacté(e) sous 24 h pour confirmer votre commande.
+        </p>
+      </form>
+
+      <a href="{{ url_for('contact') }}" class="product-detail__contact-link">
+        ❓ Une question ? Contactez-nous
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══ PRODUITS SIMILAIRES ══════════════════════════════════════════════ -->
+  {% if related %}
+  <section class="related-products">
+    <h2 class="related-products__title">Vous aimerez aussi</h2>
+    <div class="shop-grid shop-grid--compact">
+      {% for p in related %}
+      <article class="product-card">
+        <a href="{{ url_for('product_detail', slug=p.slug) }}" class="product-card__media-link">
+          <div class="product-card__media">
+            <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.name }}" loading="lazy"
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/products/placeholder.svg') }}'">
+          </div>
+        </a>
+        <div class="product-card__body">
+          <h3 class="product-card__name">
+            <a href="{{ url_for('product_detail', slug=p.slug) }}">{{ p.name }}</a>
+          </h3>
+          <div class="product-card__footer">
+            <span class="product-card__price">{{ p.price }}</span>
+            <a href="{{ url_for('product_detail', slug=p.slug) }}" class="btn btn--outline btn--sm">Voir</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flashes container">
+    {% for cat, msg in messages %}
+    <div class="flash flash--{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+{% endblock %}

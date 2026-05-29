@@ -12,7 +12,7 @@ def test_db_path(tmp_path_factory):
 def app(test_db_path, monkeypatch):
     # Force app to use a temp sqlite file BEFORE importing
     monkeypatch.setenv("KEMAL_DB", test_db_path)
-    from app import app as flask_app, db
+    from app1 import app as flask_app, db
     with flask_app.app_context():
         db.drop_all()
         db.create_all()
@@ -25,6 +25,6 @@ def client(app):
 
 @pytest.fixture()
 def db(app):
-    from app import db as _db
+    from app1 import db as _db
     with app.app_context():
         yield _db

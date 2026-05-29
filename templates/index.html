@@ -1,43 +1,144 @@
-{% extends 'base.html' %}
-{% block title %}Accueil — El Kémal Phone’s Solutions{% endblock %}
-{% block body_class %}home{% endblock %}
-{% set no_footer = true %}
+{% extends "base.html" %}
+{% block title %}EL Kémal Phone Solutions — Réparation & Vente{% endblock %}
+
 {% block content %}
-<section class="home-hero">
-  <div>
-    <h2 style="font-size:clamp(1.4rem,3vw,2.2rem);margin-bottom:.5rem;">Bienvenue</h2>
-    <p>Réparations et solutions mobiles rapides et fiables.</p>
+<!-- ═══════════════════════════ HERO ════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__inner">
+    <span class="hero__badge">🇨🇭 Lausanne &amp; alentours</span>
+    <h1 class="hero__title">
+      Votre smartphone<br>
+      <em>réparé ou remplacé</em><br>
+      en quelques heures.
+    </h1>
+    <p class="hero__sub">
+      Diagnostic gratuit · Pièces originales · Garantie 6 mois · Devis transparent
+    </p>
+    <div class="hero__actions">
+      <a href="{{ url_for('userinput_form') }}" class="btn btn--primary btn--lg">
+        📱 Déposer une demande de réparation
+      </a>
+      <!-- <a href="{{ url_for('boutique') }}" class="btn btn--outline btn--lg">
+        🛍 Voir la boutique
+      </a>
+    </div>
+  </div>
+  <div class="hero__visual" aria-hidden="true">
+    <div class="hero__phone hero__phone--1"></div>
+    <div class="hero__phone hero__phone--2"></div>
+    <div class="hero__phone hero__phone--3"></div>
+  </div> -->
+</section>
+
+<!-- ═══════════════════════════ SERVICES ═══════════════════════════════════ -->
+<section class="section services" id="services">
+  <div class="container">
+    <h2 class="section__title">Ce que nous faisons</h2>
+    <div class="services__grid">
+      <article class="service-card">
+        <div class="service-card__icon">🔧</div>
+        <h3>Réparation rapide</h3>
+        <p>Écran fissuré, batterie HS, connecteur endommagé — on s'en occupe le jour même.</p>
+      </article>
+      <article class="service-card">
+        <div class="service-card__icon">📦</div>
+        <h3>Smartphones reconditionnés</h3>
+        <p>Appareils testés, nettoyés et garantis. iOS et Android disponibles.</p>
+        <a href="{{ url_for('boutique') }}" class="service-card__link">Voir la boutique →</a>
+      </article>
+      <article class="service-card">
+        <div class="service-card__icon">🔒</div>
+        <h3>Déverrouillage & unlock</h3>
+        <p>Unlock réseau, suppression ID Apple/Google, récupération de données.</p>
+      </article>
+      <article class="service-card">
+        <div class="service-card__icon">🛡</div>
+        <h3>Accessoires &amp; protections</h3>
+        <p>Coques, verres trempés, câbles, chargeurs — tout ce qu'il faut en boutique.</p>
+        <a href="{{ url_for('boutique') }}?cat=Accessoire" class="service-card__link">Voir les accessoires →</a>
+      </article>
+    </div>
   </div>
 </section>
-  <section class="hero" style="background-image:url('{{ url_for("static", filename="img/hero.jpg") }}')">
-    <div class="hero-inner">
-      <h2>{{ _('Réparation & solutions digitales') }}</h2>
-      <p>{{ _('Diagnostic rapide, devis transparent, service professionnel.') }}</p>
-      <p>
-        <a class="btn-primary" href="{{ url_for('userinput_form') }}">{{ _('Soumettre une demande') }}</a>
-        <a class="btn-ghost" href="{{ url_for('contact') }}">{{ _('Contact / QR') }}</a>
-      </p>
-    </div>
-  </section>
 
-  <section class="cards">
-  <h3>{{ _('Dernières demandes') }}</h3>
-  {% if userinputs %}
-    <div class="grid">
-      {% for u in userinputs %}
-      <article class="card">
-        <div class="card-title">
-          <strong>{{ u.fname }}</strong> <span class="muted">— {{ u.modele }}</span>
+<!-- ═══════════════════════════ PROCESS ════════════════════════════════════ -->
+<section class="section process" id="comment">
+  <div class="container">
+    <h2 class="section__title">Comment ça marche ?</h2>
+    <ol class="process__steps">
+      <li class="process__step">
+        <span class="process__num">1</span>
+        <div>
+          <strong>Décrivez votre panne</strong>
+          <p>Remplissez le formulaire en ligne (2 minutes).</p>
         </div>
-        <div class="card-body">{{ u.problem }}</div>
-        <div class="card-meta muted">
-          {{ u.created.strftime('%Y-%m-%d %H:%M') if u.created else '' }}
+      </li>
+      <li class="process__step">
+        <span class="process__num">2</span>
+        <div>
+          <strong>Recevez un devis</strong>
+          <p>Nous vous rappelons sous 2 h avec un tarif clair.</p>
         </div>
-      </article>
-      {% endfor %}
+      </li>
+      <li class="process__step">
+        <span class="process__num">3</span>
+        <div>
+          <strong>Déposez votre appareil</strong>
+          <p>Atelier en centre-ville, ouvert 7j/7.</p>
+        </div>
+      </li>
+      <li class="process__step">
+        <span class="process__num">4</span>
+        <div>
+          <strong>Récupérez-le réparé</strong>
+          <p>Souvent le jour même, toujours avec garantie écrite.</p>
+        </div>
+      </li>
+    </ol>
+    <div class="process__cta">
+      <a href="{{ url_for('userinput_form') }}" class="btn btn--primary">
+        Démarrer ma demande →
+      </a>
     </div>
-  {% else %}
-    <p class="muted">{{ _("Aucune demande pour l’instant.") }}</p>
-  {% endif %}
+  </div>
 </section>
+
+<!-- ═══════════════════════════ RÉCENTES DEMANDES (admin) ═══════════════════ -->
+{% if current_user.is_authenticated and current_user.role in ('admin','staff') %}
+<section class="section section--alt" id="recent">
+  <div class="container">
+    <h2 class="section__title">Dernières demandes</h2>
+    {% if recent_requests %}
+    <table class="table">
+      <thead><tr><th>#</th><th>Prénom</th><th>Modèle</th><th>Problème</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for r in recent_requests %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.fname }}</td>
+          <td>{{ r.modele }}</td>
+          <td>{{ r.problem[:60] }}{% if r.problem|length > 60 %}…{% endif %}</td>
+          <td>{{ r.created.strftime('%d/%m/%Y %H:%M') if r.created else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{{ url_for('userinput_list') }}" class="btn btn--outline">Tout l'historique →</a>
+    {% else %}
+    <p class="muted">Aucune demande pour l'instant.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════ FLASH MESSAGES ══════════════════════════════ -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flashes container">
+    {% for cat, msg in messages %}
+    <div class="flash flash--{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
 {% endblock %}

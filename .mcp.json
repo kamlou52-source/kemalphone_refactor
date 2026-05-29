@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "google-cloud": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@google-cloud/mcp-server"
+      ],
+      "env": {
+        "GOOGLE_CLOUD_PROJECT": "kemalphone-refactor",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/home/mercipowerhouse/.config/gcloud/service-account.json"
+      }
+    }
+  }
+}

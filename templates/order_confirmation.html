@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Commande confirmée — El Kémal Phone’s Solutions{% endblock %}
+{% block body_class %}order-confirmation{% endblock %}
+{% block content %}
+<section class="hero" style="background-image:url('{{ url_for('static', filename='img/hero.jpg') }}')">
+  <div class="hero-inner">
+    <h2>{{ _('Commande enregistrée') }}</h2>
+    <p>{{ _('Merci pour votre confiance. Nous revenons vers vous rapidement pour finaliser la préparation.') }}</p>
+    <p>
+      <a class="btn-primary" href="{{ url_for('boutique') }}">{{ _('Retour à la boutique') }}</a>
+      <a class="btn-secondary" href="{{ url_for('contact') }}">{{ _('Contact / QR') }}</a>
+    </p>
+  </div>
+</section>
+
+<section class="cards">
+  <div class="section-header">
+    <h3>{{ _('Résumé de la commande') }}</h3>
+    <p>{{ _('Votre demande a bien été reçue. Voici le détail de votre commande rapide.') }}</p>
+  </div>
+  <div class="product-card" style="max-width:760px;margin:0 auto;">
+    <div class="product-card-body">
+      <p><strong>{{ _('Numéro de commande') }} :</strong> {{ inv.id }}</p>
+      <p><strong>{{ _('Client') }} :</strong> {{ inv.customer_name }}</p>
+      <p><strong>{{ _('E-mail') }} :</strong> {{ inv.customer_email }}</p>
+      <p><strong>{{ _('Produit') }} :</strong> {{ product.name }}</p>
+      <p><strong>{{ _('Quantité') }} :</strong> {{ quantity }}</p>
+      <p><strong>{{ _('Commentaire') }} :</strong> {{ comment or _('Aucun commentaire.') }}</p>
+    </div>
+    <div class="product-card-footer">
+      <span class="price">{{ _('Sous-total') }} : CHF {{ '%.2f' % inv.subtotal }}</span>
+      <span class="price">{{ _('TVA') }} ({{ vat_rate }}%) : CHF {{ '%.2f' % inv.vat_amount }}</span>
+      <span class="price">{{ _('Total') }} : CHF {{ '%.2f' % inv.total }}</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

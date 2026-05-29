@@ -1,4 +1,4 @@
-# app.py
+# app.py  — EL Kémal Phone Solutions (version corrigée)
 import os, io, base64, secrets, time, qrcode
 from io import StringIO
 from datetime import datetime, timedelta
@@ -21,15 +21,78 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv, find_dotenv
 
-# ===== Extensions (créées au niveau module) ====================================
+# ===== Extensions (créées au niveau module) =====================================
 db = SQLAlchemy()
 mail = Mail()
 babel = Babel()
 login_manager = LoginManager()
 
-# ===== Utilitaires config ======================================================
+# ===== Catalogue boutique (source unique) =======================================
+SHOP_PRODUCTS = [
+    {
+        "slug": "iphone-13-pro",
+        "name": "iPhone 13 Pro",
+        "price": "699 CHF",
+        "category": "iOS",
+        "badge": "Best-seller",
+        "description": "iPhone reconditionné premium, batterie ≥ 85 %, Face ID fonctionnel.",
+        "image": "img/products/iphone13pro.jpg",
+        "video": "videos/iphone13pro.mp4",
+    },
+    {
+        "slug": "samsung-s22",
+        "name": "Samsung Galaxy S22",
+        "price": "549 CHF",
+        "category": "Android",
+        "badge": "Nouveau",
+        "description": "Smartphone Android performant, garanti 6 mois, écran AMOLED.",
+        "image": "img/products/s22.jpg",
+        "video": "videos/s22.mp4",
+    },
+    {
+        "slug": "airpods-pro",
+        "name": "AirPods Pro",
+        "price": "149 CHF",
+        "category": "Accessoire",
+        "badge": "",
+        "description": "Écouteurs sans fil Apple ANC, boîtier de charge MagSafe inclus.",
+        "image": "img/products/airpods.jpg",
+        "video": "videos/airpods.mp4",
+    },
+    {
+        "slug": "pixel-7a",
+        "name": "Google Pixel 7a",
+        "price": "449 CHF",
+        "category": "Android",
+        "badge": "",
+        "description": "Appareil photo exceptionnel, Android pur, mises à jour garanties.",
+        "image": "img/products/pixel7a.jpg",
+        "video": "videos/pixel7a.mp4",
+    },
+    {
+        "slug": "iphone-se-3",
+        "name": "iPhone SE 3e gén.",
+        "price": "379 CHF",
+        "category": "iOS",
+        "badge": "Prix imbattable",
+        "description": "Le plus compact des iPhones avec puce A15 Bionic.",
+        "image": "img/products/iphonese3.jpg",
+        "video": "videos/iphonese3.mp4",
+    },
+    {
+        "slug": "coque-magsafe",
+        "name": "Coque MagSafe Universal",
+        "price": "29 CHF",
+        "category": "Accessoire",
+        "badge": "",
+        "description": "Protection slim compatible MagSafe, disponible en 6 coloris.",
+        "image": "img/products/coque.jpg",
+        "video": "",
+    },
+]
+
+# ===== Utilitaires config =======================================================
 def normalize_db_url(raw: str | None) -> str:
-    """Fallback local + remplace localhost par 127.0.0.1."""
     fallback = "postgresql+psycopg2://kemal:kemalpass@127.0.0.1:5432/kemaldb"
     if not raw or not raw.strip():
         return fallback
@@ -50,7 +113,7 @@ def wait_for_db(uri: str, retries: int = 10, delay: float = 1.0):
             time.sleep(delay)
     raise RuntimeError(f"DB indisponible. URI={uri}\nDernière erreur: {last_err}")
 
-# ===== Modèles =================================================================
+# ===== Modèles ==================================================================
 class UserInput(db.Model):
     __tablename__ = "userinput"
     __table_args__ = (db.Index("idx_userinput_created", "created"),)
@@ -71,38 +134,38 @@ class UserInput(db.Model):
 
 class User(UserMixin, db.Model):
     __tablename__ = "user"
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    id            = db.Column(db.Integer, primary_key=True)
+    email         = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="user")
-    def set_password(self, password: str): self.password_hash = generate_password_hash(password)
-    def check_password(self, password: str) -> bool: return check_password_hash(self.password_hash, password)
+    role          = db.Column(db.String(20), nullable=False, default="user")
+    def set_password(self, p): self.password_hash = generate_password_hash(p)
+    def check_password(self, p): return check_password_hash(self.password_hash, p)
 
 class QuickToken(db.Model):
-    id        = db.Column(db.Integer, primary_key=True)
-    token     = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    purpose   = db.Column(db.String(32), nullable=False, default="login")
-    user_id   = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    created   = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at= db.Column(db.DateTime, nullable=False)
+    id         = db.Column(db.Integer, primary_key=True)
+    token      = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    purpose    = db.Column(db.String(32), nullable=False, default="login")
+    user_id    = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    created    = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=False)
 
-# --- Facturation ---------------------------------------------------------------
+# --- Facturation ----------------------------------------------------------------
 SWISS_VAT_RATES = {'standard': 0.081, 'reduit': 0.026, 'special': 0.038}
-SWISS_VAT_RATE = SWISS_VAT_RATES['standard']
+SWISS_VAT_RATE  = SWISS_VAT_RATES['standard']
 
 class Invoice(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id             = db.Column(db.Integer, primary_key=True)
     customer_name  = db.Column(db.String(120), nullable=False)
     customer_email = db.Column(db.String(120), nullable=True)
-    method   = db.Column(db.String(20), nullable=False, default='quote')  # quote, pay_now, pay_on_pickup
-    subtotal = db.Column(db.Float, nullable=False, default=0.0)
+    method     = db.Column(db.String(20), nullable=False, default='quote')
+    subtotal   = db.Column(db.Float, nullable=False, default=0.0)
     vat_amount = db.Column(db.Float, nullable=False, default=0.0)
-    total    = db.Column(db.Float, nullable=False, default=0.0)
-    status   = db.Column(db.String(20), nullable=False, default='draft')  # draft, paid, pending
-    created  = db.Column(db.DateTime, default=datetime.utcnow)
+    total      = db.Column(db.Float, nullable=False, default=0.0)
+    status     = db.Column(db.String(20), nullable=False, default='draft')
+    created    = db.Column(db.DateTime, default=datetime.utcnow)
 
 class InvoiceItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id          = db.Column(db.Integer, primary_key=True)
     invoice_id  = db.Column(db.Integer, db.ForeignKey('invoice.id'), nullable=False, index=True)
     description = db.Column(db.String(200), nullable=False)
     qty         = db.Column(db.Integer, nullable=False, default=1)
@@ -114,7 +177,8 @@ class InvoiceItem(db.Model):
 def create_app():
     # -- .env
     env_path = find_dotenv(usecwd=True) or str(Path(__file__).with_name(".env"))
-    if env_path: load_dotenv(env_path, override=False)
+    if env_path:
+        load_dotenv(env_path, override=False)
     print("Loaded .env from:", env_path)
 
     app = Flask(__name__)
@@ -129,8 +193,8 @@ def create_app():
     # Uploads
     UPLOAD_DIR = Path(app.root_path) / "uploads"
     UPLOAD_DIR.mkdir(exist_ok=True)
-    app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
-    app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
+    app.config["UPLOAD_FOLDER"]        = str(UPLOAD_DIR)
+    app.config["MAX_CONTENT_LENGTH"]   = 10 * 1024 * 1024
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf"}
     def allowed_file(filename: str) -> bool:
         return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -138,17 +202,16 @@ def create_app():
     # DB
     raw_url = os.getenv("DATABASE_URL")
     db_url  = normalize_db_url(raw_url)
-    print("DATABASE_URL seen by app:", raw_url)
     print("DATABASE_URL used by SQLAlchemy:", db_url)
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+    app.config["SQLALCHEMY_DATABASE_URI"]    = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"]  = {"pool_pre_ping": True}
 
-    # Mail (ex: MailHog en dev)
+    # Mail
     app.config.setdefault('MAIL_SERVER',   os.getenv('MAIL_SERVER', 'localhost'))
     app.config.setdefault('MAIL_PORT',     int(os.getenv('MAIL_PORT', '1025')))
-    app.config.setdefault('MAIL_USE_TLS',  os.getenv('MAIL_USE_TLS', 'false').lower() == 'true')
-    app.config.setdefault('MAIL_USE_SSL',  os.getenv('MAIL_USE_SSL', 'false').lower() == 'true')
+    app.config.setdefault('MAIL_USE_TLS',  os.getenv('MAIL_USE_TLS','false').lower()=='true')
+    app.config.setdefault('MAIL_USE_SSL',  os.getenv('MAIL_USE_SSL','false').lower()=='true')
     app.config.setdefault('MAIL_USERNAME', os.getenv('MAIL_USERNAME'))
     app.config.setdefault('MAIL_PASSWORD', os.getenv('MAIL_PASSWORD'))
     app.config.setdefault('MAIL_DEFAULT_SENDER', (
@@ -157,8 +220,8 @@ def create_app():
     ))
 
     # i18n
-    app.config['BABEL_DEFAULT_LOCALE']   = 'fr'
-    app.config['BABEL_SUPPORTED_LOCALES']= ['fr', 'en', 'de', 'it']
+    app.config['BABEL_DEFAULT_LOCALE']    = 'fr'
+    app.config['BABEL_SUPPORTED_LOCALES'] = ['fr', 'en', 'de', 'it']
 
     # Init extensions
     db.init_app(app)
@@ -171,32 +234,28 @@ def create_app():
         or 'fr'
     )
 
-    # DB ready + create_all + seed
+    # DB ready + create_all + seed admin
     with app.app_context():
         wait_for_db(app.config["SQLALCHEMY_DATABASE_URI"])
         db.create_all()
-        admin = User.query.filter_by(email="admin@example.com").first()
-        if not admin:
+        if not User.query.filter_by(email="admin@example.com").first():
             admin = User(email="admin@example.com", role="admin")
             admin.set_password("Admin!234")
             db.session.add(admin); db.session.commit()
             print("Admin créé.")
-        else:
-            print("Admin déjà présent.")
 
-    # Contexte Jinja
     @app.context_processor
     def inject_i18n():
         return {"supported_locales": app.config.get("BABEL_SUPPORTED_LOCALES", ["fr","en"])}
 
-    # ==== Helpers / Décorateurs (définis AVANT routes qui les utilisent) ======
+    # ===== Helpers / Décorateurs ================================================
     def is_alpha(s: str) -> bool:
         return s.replace(" ", "").isalpha()
 
     def staff_required(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if not current_user.is_authenticated or getattr(current_user, 'role', 'user') not in ('staff','admin'):
+            if not current_user.is_authenticated or getattr(current_user,'role','user') not in ('staff','admin'):
                 flash(_('Accès réservé au personnel.'), 'error')
                 return redirect(url_for('index'))
             return f(*args, **kwargs)
@@ -205,26 +264,20 @@ def create_app():
     def admin_required(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if not current_user.is_authenticated or getattr(current_user, 'role', 'user') != 'admin':
+            if not current_user.is_authenticated or getattr(current_user,'role','user') != 'admin':
                 flash(_('Accès réservé aux administrateurs.'), 'error')
                 return redirect(url_for('index'))
             return f(*args, **kwargs)
         return wrapper
-    
 
-    # Persistance (helper d’écriture)
-    def store_db(fname: str, modele: str, problem: str) -> int:
-        ui = UserInput(
-            fname=fname.strip(),
-            modele=modele.strip(),
-            problem=problem.strip(),
-            created=datetime.utcnow(),
-        )
-        db.session.add(ui)
-        db.session.commit()
+    def store_db(fname, modele, problem):
+        fname = User.fname
+        ui = UserInput(fname=fname.strip(), modele=modele.strip(),
+                       problem=problem.strip(), created=datetime.utcnow())
+        db.session.add(ui); db.session.commit()
         return ui.id
 
-    # ================================ ROUTES ===================================
+    # ===== ROUTES ===============================================================
 
     # Langue
     @app.route('/set_locale/<locale>', endpoint='set_locale')
@@ -236,13 +289,44 @@ def create_app():
             flash(_('Langue changée.'), 'success')
         return redirect(request.referrer or url_for('index'))
 
-    # Accueil
+    # --- Accueil (SANS produits — ils vivent dans /boutique) --------------------
     @app.route("/")
     def index():
-        rows = UserInput.query.order_by(UserInput.created.desc()).all()
-        return render_template("index.html", userinputs=rows)
+        # On passe juste les dernières demandes pour le suivi client
+        recent = UserInput.query.order_by(UserInput.created.desc()).limit(5).all()
+        return render_template("index.html", recent_requests=recent)
 
-    # Étape 1 : prénom
+    # --- Boutique ---------------------------------------------------------------
+    @app.route("/boutique")
+    def boutique():
+        category = request.args.get("cat", "")
+        products = SHOP_PRODUCTS
+        if category:
+            products = [p for p in products if p["category"] == category]
+        categories = sorted({p["category"] for p in SHOP_PRODUCTS})
+        return render_template("boutique.html",
+                               products=products,
+                               categories=categories,
+                               active_cat=category)
+
+    @app.route("/boutique/<slug>")
+    def product_detail(slug):
+        product = next((p for p in SHOP_PRODUCTS if p["slug"] == slug), None)
+        if not product:
+            flash("Produit introuvable.", "error")
+            return redirect(url_for("boutique"))
+        related = [p for p in SHOP_PRODUCTS if p["category"] == product["category"] and p["slug"] != slug][:3]
+        return render_template("product_detail.html", product=product, related=related)
+
+    @app.route("/boutique/<slug>/commander", methods=["POST"])
+    def product_order(slug):
+        product = next((p for p in SHOP_PRODUCTS if p["slug"] == slug), None)
+        if not product:
+            return redirect(url_for("boutique"))
+        flash(f"✅ Votre demande pour « {product['name']} » a été envoyée. Nous vous contactons sous 24h.", "success")
+        return redirect(url_for("boutique"))
+
+    # --- Formulaires réparation -------------------------------------------------
     @app.route("/userinput", methods=["GET", "POST"], endpoint="userinput_form")
     def userinput_form():
         if request.method == "POST":
@@ -254,14 +338,12 @@ def create_app():
             return redirect(url_for("android_form"))
         return render_template("userinput.html")
 
-    # Étape 2a : Android
     @app.route("/android_form", methods=["GET", "POST"])
     def android_form():
         fname = session.get("pending_fname")
         if not fname:
-            flash("Veuillez d’abord saisir votre prénom.", "error")
+            flash("Veuillez d'abord saisir votre prénom.", "error")
             return redirect(url_for("userinput_form"))
-
         if request.method == "POST":
             modele  = (request.form.get("modele") or "").strip()
             problem = (request.form.get("Problems") or request.form.get("problem") or "").strip()
@@ -271,23 +353,19 @@ def create_app():
             if errors:
                 for e in errors: flash(e, "error")
                 return redirect(url_for("android_form"))
-
             uid = store_db(fname, modele, problem)
             session.pop("pending_fname", None)
             session["last_userinput_id"] = uid
             flash("✅ Votre demande a été enregistrée.", "success")
             return redirect(url_for("index"))
-
         return render_template("android_form.html", fname=fname)
 
-    # Étape 2b : iOS
     @app.route("/ios_form", methods=["GET", "POST"])
     def ios_form():
         fname = session.get("pending_fname")
         if not fname:
-            flash("Veuillez d’abord saisir votre prénom.", "error")
+            flash("Veuillez d'abord saisir votre prénom.", "error")
             return redirect(url_for("userinput_form"))
-
         if request.method == "POST":
             modele  = (request.form.get("modele") or "").strip()
             problem = (request.form.get("Problems") or request.form.get("problem") or "").strip()
@@ -297,63 +375,50 @@ def create_app():
             if errors:
                 for e in errors: flash(e, "error")
                 return redirect(url_for("ios_form"))
-
             uid = store_db(fname, modele, problem)
             session.pop("pending_fname", None)
             session["last_userinput_id"] = uid
             flash("✅ Votre demande a été enregistrée.", "success")
             return redirect(url_for("index"))
-
         return render_template("ios_form.html", fname=fname)
 
-    # Liste + filtres + pagination
+    # --- Historique -------------------------------------------------------------
     @app.get("/userinput_list")
     def userinput_list():
-        q        = (request.args.get("q") or "").strip()
-        modele   = (request.args.get("modele") or "").strip()
-        start_s  = (request.args.get("start") or "").strip()  # YYYY-MM-DD
-        end_s    = (request.args.get("end") or "").strip()    # YYYY-MM-DD
+        q       = (request.args.get("q") or "").strip()
+        modele  = (request.args.get("modele") or "").strip()
+        start_s = (request.args.get("start") or "").strip()
+        end_s   = (request.args.get("end") or "").strip()
         page     = max(1, int(request.args.get("page", 1)))
         per_page = min(50, int(request.args.get("per_page", 20)))
-
         qry = UserInput.query
         if q:
             like = f"%{q}%"
-            qry = qry.filter(or_(
-                UserInput.fname.ilike(like),
-                UserInput.modele.ilike(like),
-                UserInput.problem.ilike(like),
-            ))
-
+            qry = qry.filter(or_(UserInput.fname.ilike(like),
+                                 UserInput.modele.ilike(like),
+                                 UserInput.problem.ilike(like)))
         if modele:
             qry = qry.filter(UserInput.modele == modele)
-
         def _d(s):
             try: return datetime.strptime(s, "%Y-%m-%d")
             except Exception: return None
-
-        start_dt = _d(start_s)
-        end_dt   = _d(end_s)
+        start_dt, end_dt = _d(start_s), _d(end_s)
         if start_dt: qry = qry.filter(UserInput.created >= start_dt)
         if end_dt:   qry = qry.filter(UserInput.created < (end_dt + timedelta(days=1)))
-
         qry = qry.order_by(UserInput.created.desc())
         pagination = qry.paginate(page=page, per_page=per_page, error_out=False)
-
         models = [m[0] for m in db.session.query(UserInput.modele).distinct().order_by(UserInput.modele.asc()).all()]
-
         return render_template("userinput_list.html",
                                userinputs=pagination.items,
                                pagination=pagination,
                                models=models)
 
-    # Détail
     @app.get("/userinput/<int:rid>")
     def userinput_detail(rid: int):
         u = UserInput.query.get_or_404(rid)
         return render_template("request_detail.html", u=u)
 
-    # API JSON
+    # --- API JSON ---------------------------------------------------------------
     @app.get("/api/userinputs")
     def api_userinputs():
         limit = int(request.args.get("limit", 100))
@@ -362,17 +427,19 @@ def create_app():
 
     @app.get("/me")
     def me_api():
-        ui = None
         uid = session.get("last_userinput_id")
-        if uid:
-            ui = UserInput.query.get(uid)
+        ui = UserInput.query.get(uid) if uid else None
         if not ui:
             ui = UserInput.query.order_by(UserInput.created.desc()).first()
         if not ui:
             return jsonify({"error": "no data"}), 404
         return jsonify(ui.as_dict())
 
-    # Uploads
+    @app.get("/api/products")
+    def api_products():
+        return jsonify(SHOP_PRODUCTS)
+
+    # --- Uploads ----------------------------------------------------------------
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
         if request.method == "POST":
@@ -392,36 +459,12 @@ def create_app():
     def uploaded_file(filename):
         return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
-    # Export CSV (protégé admin)
+    # --- Export CSV -------------------------------------------------------------
     @app.get("/export/userinputs.csv")
     @login_required
     @admin_required
     def export_userinputs_csv():
-        q       = (request.args.get("q") or "").strip()
-        modele  = (request.args.get("modele") or "").strip()
-        start_s = (request.args.get("start") or "").strip()
-        end_s   = (request.args.get("end") or "").strip()
-
-        qry = UserInput.query
-        if q:
-            like = f"%{q}%"
-            qry = qry.filter(or_(
-                UserInput.fname.ilike(like),
-                UserInput.modele.ilike(like),
-                UserInput.problem.ilike(like),
-            ))
-        if modele:
-            qry = qry.filter(UserInput.modele == modele)
-
-        def _d(s):
-            try: return datetime.strptime(s, "%Y-%m-%d")
-            except Exception: return None
-        start_dt = _d(start_s); end_dt = _d(end_s)
-        if start_dt: qry = qry.filter(UserInput.created >= start_dt)
-        if end_dt:   qry = qry.filter(UserInput.created < (end_dt + timedelta(days=1)))
-
-        rows = qry.order_by(UserInput.id.asc()).all()
-
+        rows = UserInput.query.order_by(UserInput.id.asc()).all()
         si = StringIO()
         import csv
         w = csv.writer(si)
@@ -432,7 +475,7 @@ def create_app():
         return Response(si.getvalue(), mimetype="text/csv",
                         headers={"Content-Disposition": 'attachment; filename="userinputs.csv"'})
 
-    # Santé
+    # --- Santé ------------------------------------------------------------------
     @app.get("/healthz")
     def healthz(): return "ok", 200
 
@@ -441,7 +484,7 @@ def create_app():
         db.session.execute(text("SELECT 1"))
         return {"status": "ready"}, 200
 
-    # ===== QR login + contact ==================================================
+    # ===== QR login + contact ===================================================
     def _create_qr_login_token(user_id=None, minutes_valid=10):
         tok = secrets.token_hex(24)
         expires = datetime.utcnow() + timedelta(minutes=minutes_valid)
@@ -478,7 +521,7 @@ def create_app():
         db.session.delete(qt); db.session.commit()
         return redirect(url_for("index"))
 
-    # ===== Auth basique ========================================================
+    # ===== Auth =================================================================
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
@@ -486,7 +529,7 @@ def create_app():
     @app.route("/register", methods=["GET", "POST"])
     def register():
         if request.method == "POST":
-            email = (request.form.get("email") or "").strip().lower()
+            email    = (request.form.get("email") or "").strip().lower()
             password = request.form.get("password") or ""
             if not email or not password:
                 flash("E-mail et mot de passe requis.", "error")
@@ -503,7 +546,7 @@ def create_app():
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if request.method == "POST":
-            email = (request.form.get("email") or "").strip().lower()
+            email    = (request.form.get("email") or "").strip().lower()
             password = request.form.get("password") or ""
             user = User.query.filter_by(email=email).first()
             if user and user.check_password(password):
@@ -521,33 +564,34 @@ def create_app():
         flash("Déconnecté.", "success")
         return redirect(url_for("index"))
 
-    # ===== Stats / Facturation (protégées) ====================================
+    # ===== Stats ================================================================
     @app.route("/stats")
     @login_required
     @admin_required
     def stats():
         rows = UserInput.query.all()
-        models = Counter([r.modele for r in rows])
+        models   = Counter([r.modele  for r in rows])
         problems = Counter([r.problem for r in rows])
         data = {"models": models, "problems": problems, "total": len(rows)}
         return render_template("stats.html", stats=data)
 
+    # ===== Facturation ==========================================================
     @app.route('/billing', methods=['GET','POST'])
     @staff_required
     def billing():
         if request.method == 'POST':
-            name = (request.form.get('customer_name') or '').strip()
-            email = (request.form.get('customer_email') or '').strip()
+            name   = (request.form.get('customer_name')  or '').strip()
+            email  = (request.form.get('customer_email') or '').strip()
             method = request.form.get('method') or 'quote'
-            items = []
+            items  = []
             n = int(request.form.get('items_count') or 0)
             for i in range(1, n+1):
-                desc = (request.form.get(f'desc_{i}') or '').strip()
-                qty  = int(request.form.get(f'qty_{i}') or 0)
-                price= float(request.form.get(f'price_{i}') or 0.0)
+                desc     = (request.form.get(f'desc_{i}')  or '').strip()
+                qty      = int(request.form.get(f'qty_{i}')   or 0)
+                price    = float(request.form.get(f'price_{i}') or 0.0)
                 vat_code = (request.form.get(f'vat_{i}') or 'standard')
                 vat_rate = SWISS_VAT_RATES.get(vat_code, 0.081)
-                if desc and qty>0 and price>=0:
+                if desc and qty > 0 and price >= 0:
                     items.append({'description': desc, 'qty': qty, 'unit_price': price,
                                   'vat_code': vat_code, 'vat_rate': vat_rate})
             if not name or not items:
@@ -576,12 +620,12 @@ def create_app():
     @app.route('/invoice/<int:invoice_id>')
     @staff_required
     def invoice_view(invoice_id):
-        inv = Invoice.query.get_or_404(invoice_id)
+        inv   = Invoice.query.get_or_404(invoice_id)
         items = InvoiceItem.query.filter_by(invoice_id=inv.id).all()
         return render_template('invoice.html', inv=inv, items=items,
                                vat_rate=int(SWISS_VAT_RATE*1000)/10)
 
-    # PDF
+    # PDF facture
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas as rl_canvas
     from reportlab.lib.units import mm
@@ -595,7 +639,8 @@ def create_app():
         y -= 8*mm; c.setFont("Helvetica", 10)
         c.drawString(20*mm, y, f"Client: {inv.customer_name}  |  Email: {inv.customer_email or '-'}")
         y -= 10*mm; c.setFont("Helvetica-Bold", 10)
-        c.drawString(20*mm, y, "Article"); c.drawString(100*mm, y, "Qté"); c.drawString(115*mm, y, "PU"); c.drawString(135*mm, y, "TVA"); c.drawString(155*mm, y, "Montant")
+        c.drawString(20*mm, y, "Article"); c.drawString(100*mm, y, "Qté")
+        c.drawString(115*mm, y, "PU"); c.drawString(135*mm, y, "TVA"); c.drawString(155*mm, y, "Montant")
         y -= 6*mm; c.line(20*mm, y, 190*mm, y); y -= 4*mm; c.setFont("Helvetica", 10)
         for it in items:
             if y < 30*mm:
@@ -610,15 +655,16 @@ def create_app():
         y -= 6*mm; c.line(120*mm, y, 190*mm, y); y -= 6*mm
         c.drawRightString(170*mm, y, "Sous-total:"); c.drawRightString(190*mm, y, f"{inv.subtotal:.2f}"); y -= 6*mm
         c.drawRightString(170*mm, y, "TVA:"); c.drawRightString(190*mm, y, f"{inv.vat_amount:.2f}"); y -= 6*mm
-        c.setFont("Helvetica-Bold", 11); c.drawRightString(170*mm, y, "Total:"); c.drawRightString(190*mm, y, f"{inv.total:.2f}")
+        c.setFont("Helvetica-Bold", 11)
+        c.drawRightString(170*mm, y, "Total:"); c.drawRightString(190*mm, y, f"{inv.total:.2f}")
         c.showPage(); c.save(); buf.seek(0); return buf
 
     @app.route("/invoice/<int:invoice_id>/pdf")
     @staff_required
     def invoice_pdf(invoice_id):
-        inv = Invoice.query.get_or_404(invoice_id)
+        inv   = Invoice.query.get_or_404(invoice_id)
         items = InvoiceItem.query.filter_by(invoice_id=inv.id).all()
-        pdf = build_invoice_pdf(inv, items)
+        pdf   = build_invoice_pdf(inv, items)
         return send_file(pdf, mimetype="application/pdf",
                          as_attachment=True, download_name=f"invoice_{invoice_id}.pdf")
 
@@ -630,9 +676,9 @@ def create_app():
             flash(_("Aucune adresse e-mail fournie pour ce client."), "error")
             return redirect(url_for("invoice_view", invoice_id=invoice_id))
         items = InvoiceItem.query.filter_by(invoice_id=inv.id).all()
-        pdf = build_invoice_pdf(inv, items)
-        msg = Message(subject=f"Votre facture/devis #{invoice_id}",
-                      recipients=[inv.customer_email])
+        pdf   = build_invoice_pdf(inv, items)
+        msg   = Message(subject=f"Votre facture/devis #{invoice_id}",
+                        recipients=[inv.customer_email])
         msg.body = _("Veuillez trouver ci-joint votre facture/devis.")
         msg.attach(f"invoice_{invoice_id}.pdf", "application/pdf", pdf.read())
         try:
@@ -642,7 +688,7 @@ def create_app():
             flash(_("E-mail non configuré ou erreur d'envoi : ") + str(e), "error")
         return redirect(url_for("invoice_view", invoice_id=invoice_id))
 
-    # Assistant (README coach)
+    # ===== Assistant README =====================================================
     @app.route("/assistant")
     def assistant():
         return render_template("assistant.html")
@@ -660,29 +706,34 @@ def create_app():
     def api_coach():
         q = (request.json or {}).get("q", "").lower()
         tips = []
-        if "flask" in q: tips.append("Utilisez des Blueprints pour modulariser votre application Flask.")
-        if "sqlite" in q or "sqlalchemy" in q: tips.append("Activez l'echo=True de SQLAlchemy en dev pour inspecter les requêtes.")
-        if "css" in q or "responsive" in q: tips.append("Adoptez CSS Grid et testez 360/768/1024px.")
+        if "flask"    in q: tips.append("Utilisez des Blueprints pour modulariser votre application Flask.")
+        if "sqlite"   in q or "sqlalchemy" in q: tips.append("Activez echo=True de SQLAlchemy en dev pour inspecter les requêtes.")
+        if "css"      in q or "responsive" in q: tips.append("Adoptez CSS Grid et testez 360/768/1024px.")
         if not tips: tips = ["Précisez votre besoin (Flask, DB, Front, Déploiement, Tests)."]
         return jsonify({"answer": " ".join(tips)})
 
-    # Compat legacy
+    # ===== Redirections legacy ==================================================
     @app.route('/index', methods=["GET","POST"])
     def legacy_index(): return redirect(url_for("index"))
+
     @app.route('/contactus.html')
     def legacy_contact_page(): return redirect(url_for("contact"))
+
     @app.route('/android_form.html', methods=["GET","POST"])
     def legacy_android_page(): return redirect(url_for("android_form"))
+
     @app.route('/ios_form.html', methods=["GET","POST"])
     def legacy_ios_page(): return redirect(url_for("ios_form"))
-    @app.route('/kemalphonesolutions.js')
-    def legacy_js(): return send_from_directory(os.path.join(app.static_folder, 'js'), 'main.js')
 
-    return app
+    @app.route('/kemalphonesolutions.js')
+    def legacy_js():
+        return send_from_directory(os.path.join(app.static_folder, 'js'), 'main.js')
+
+    return app  # ← return INSIDE create_app()
+
 
 # ===== Entrée ==================================================================
 app = create_app()
 
 if __name__ == "__main__":
-    # dev server (en prod: gunicorn)
     app.run(debug=True, host="0.0.0.0", port=5000)

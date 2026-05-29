@@ -1,5 +1,5 @@
 
-from app import db, User
+from app1 import db, User
 
 def create_user(email, password, role="user"):
     u = User(email=email); u.set_password(password); u.role = role
